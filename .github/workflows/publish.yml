@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - main
+      - 'artifacts/**'
     tags:
       - '[0-9]+.[0-9]+.[0-9]+' # ex: 1.2.3
       - '[0-9]+.[0-9]+.[0-9]+-[A-Za-z]+.[0-9]+' # ex: 0.0.1-alpha.1
+env:
+  RUST_VERSION: 1.67.1
 jobs:
   build_cli:
     runs-on: ${{ matrix.os }}
@@ -34,12 +37,12 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.rust }}-publish-1
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ env.RUST_VERSION }}-publish-1
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ matrix.rust }}
+          toolchain: ${{ env.RUST_VERSION }}
           override: true
         if: contains(matrix.os, 'macos')
       - name: Build
@@ -74,7 +77,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust: [ '1.67.1' ]
         name: [ 'x86_64-darwin', 'x86_64-linux' ]
     steps:
       - name: Download artifacts
