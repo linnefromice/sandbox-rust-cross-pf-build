@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+' # ex: 1.2.3
+      - '[0-9]+.[0-9]+.[0-9]+-[A-Za-z]+.[0-9]+' # ex: 0.0.1-alpha.1
 jobs:
   build_cli:
     runs-on: ${{ matrix.os }}
@@ -64,13 +67,23 @@ jobs:
           path: |
             ${{ env.TARBALL_FILENAME }}
             ${{ env.SHA256_FILENAME }}
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   needs: build_cli
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       rust: [ '1.67.1' ]
-  #       name: [ 'x86_64-darwin', 'x86_64-linux' ]
-  #   steps:
-  #     - TODO
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs: build_cli
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [ '1.67.1' ]
+        name: [ 'x86_64-darwin', 'x86_64-linux' ]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: cli-for-sandbox-rust-${{ matrix.name }}
+      - name: Publish tarball and sha256
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: cli-*.tar.*
+          tag: ${{ github.ref_name }}
+          prerelease: false
