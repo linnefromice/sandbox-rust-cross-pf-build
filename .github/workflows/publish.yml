@@ -9,19 +9,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix: [ '1.67.1' ]
-      target: [ x86_64-apple-darwin, x86_64-unknown-linux-gnu ]
-      include:
-        - os: macos-12
-          target: x86_64-apple-darwin
-          binary_path: target/x86_64-apple-darwin/release
-          name: x86_64-darwin
-          tar: gtar
-        - os: ubuntu-20.04
-          target: x86_64-unknown-linux-gnu
-          binary_path: target/x86_64-unknown-linux-gnu/release
-          name: x86_64-linux
-          tar: tar
+      matrix:
+        rust: [ '1.67.1' ]
+        target: [ x86_64-apple-darwin, x86_64-unknown-linux-gnu ]
+        include:
+          - os: macos-12
+            target: x86_64-apple-darwin
+            binary_path: target/x86_64-apple-darwin/release
+            name: x86_64-darwin
+            tar: gtar
+          - os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            binary_path: target/x86_64-unknown-linux-gnu/release
+            name: x86_64-linux
+            tar: tar
     steps:
       - uses: actions/checkout@v3
       - name: Cache Cargo
@@ -44,7 +45,7 @@ jobs:
           cargo build --target ${{ matrix.target }} --locked --release
   # publish:
   #   runs-on: ubuntu-latest
-  #   nedds: build_cli
+  #   needs: build_cli
   #   strategy:
   #     fail-fast: false
   #     matrix:
