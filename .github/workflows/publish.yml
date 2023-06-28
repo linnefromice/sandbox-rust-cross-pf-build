@@ -85,5 +85,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: cli-*.tar.*
+          file_glob: true
           tag: ${{ github.ref_name }}
           prerelease: false
